@@ -2,21 +2,40 @@
 This program assists beginners with adding an intro to Movie Maker webcam WMV videos, and mp4 on linux
 
 ## System Requirements
-Windows: wmvappend.exe (such as from WM Format SDK)
 
 ## How to Use
-You can run the program using the icon "Intro Combatiblizer"
+* You can run the program using the icon "Intro Combatiblizer"
+* Make sure file in Intro folder in your Videos folder in your profile is same resolution and frame rate as original video
+
+## Changes
+* (2017-02-26) switched from ffmpeg to MP4Box (only when run on linux) to avoid outdated packages which have contat errors and slowness (due to distro retaining old versions of ffmpeg)
+* (2017-02-26) the blank version of the Add Intro button shoud show a message instead of crashing when no files are present
+* (2017-02-26) create folders needed, to avoid crash on move file if destination folder didn't exist
+* (2017-02-26) detect profile path and use cross-platform pathing
 
 ## Known Issues
-* The only line in the program D:\Projects-kivy\IntroCompatiblizer\introcompatiblizer.py
-that doesn't work is the line where the program uses the ffmpeg command (line 126 makes the command and stores it in the batchLine variable)
-HOW TO FIX: Just change the ffmpeg line--the variable batchLine stores the specific ffmpeg command. Where literal quotes are needed, \" is used (for example, "ffmpeg -i \"filename.wmv\"").
-This wouldn't work (neither would copy /b) so I used WMVAppend.exe instead.
 * May have issues with apostraphe or other special characters in filename
 
 ## Developer Notes
+* ffmpeg contact only works using a listfile (other methods failed, which is reason wmvappend was used by this program for a while).
+MP4Box is used since ffmpeg concat is still rather slow and has bad timestamp errors. These problems are due to old packages (distro's fault) according to http://video.stackexchange.com/questions/15468/non-monotonous-dts-on-concat-ffmpeg
+
+* tried converting wmv to mp4 with below info, but vlc says video is 640x482 (but "display" resolution 640x480), and flowblade says framerate is 125 fps:
+
+cd $HOME/Videos/without-intro
+thisvideofolder=converted-mp4
+mkdir $thisvideofolder
+thisname=x.wmv
+ffmpeg -i "$thisname" -c:v libx264 -crf 18 -c:a aac "$thisvideofolder/${thisname%.wmv}.mp4"
+
+### old notes (no longer applicable)
+* On Windows you can get wmvappend.exe from WM Format SDK
 * If you acquire wmvappend.exe, please read EULA.txt (End-User License Agreement) and WMFormatSDK_eula.txt before using, and do not distribute it with this program without permission from Microsoft.
 * ffmpeg cannot join the files. The problem is that concat doesn't seem to work. Instead, only the intro is used in the resulting file. The concat protocol is apparently not used anymore. I tried both an ffmpeg from 2009 and from 2012 and neither work.
 One of the developers answered this problem (only first video is copied) by saying that concat protocol is deprecated,
 and that the concat demuxer should be used instead. I cannot figure out how to do this or find any examples.
+* The only line in the program D:\Projects-kivy\IntroCompatiblizer\introcompatiblizer.py
+that doesn't work is the line where the program uses the ffmpeg command (line 126 makes the command and stores it in the batchLine variable)
+HOW TO FIX: Just change the ffmpeg line--the variable batchLine stores the specific ffmpeg command. Where literal quotes are needed, \" is used (for example, "ffmpeg -i \"filename.wmv\"").
+This wouldn't work (neither would copy /b) so I used WMVAppend.exe instead.
 

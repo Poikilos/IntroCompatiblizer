@@ -1,2 +1,3 @@
-file 'C:\Users\Owner\Videos\Intro\Intro - SeanMauer Video Intro 2014-06-10c (wmv-2Mbps).wmv'
-file 'C:\Users\Owner\Videos\without-intro\jake test.wmv'
+ffconcat version 1.0
+file '/home/owner/Videos/Intro/SeanMauer Video Intro 2014-06-09b (4-3 ratio).mp4'
+file '/home/owner/Videos/without-intro/Questions Christians Have For Other Christians BuzzFeedYellow.mp4'

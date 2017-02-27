@@ -44,7 +44,8 @@ except:
     #see also (don't seem to exist though google groups page linked below says is solution): gstreamer-python and gstreamer-devel
     print("If you are on Fedora etc use the following instructions which are a modified limited non-buildozer version of line from https://groups.google.com/forum/#!topic/kivy-users/t9248qRFvNM:")
     print("sudo dnf install python-devel ffmpeg-libs SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_ttf-devel portmidi-devel libavdevice libavc1394-devel zlibrary-devel ccache mesa-libGL mesa-libGL-devel")
-    
+#http://download.opensuse.org/repositories/home:/thopiekar:/kivy/
+#doesn't contain anything for Fedora (even old fedora version folders linked from  )
     #print("sudo python3 -m pip install --upgrade pip")
     #print("sudo python3 -m pip install cython")
     #print("sudo python3 -m pip install --upgrade pip wheel setuptools")
@@ -97,29 +98,43 @@ if os.path.isdir(videos_path):
     if not os.path.isdir(intros_path):
         os.makedirs(intros_path)
 
+converter_package = "gpac"  # MP4Box command (see below for syntax)
 
 processedFileIDString = " (with Intro)"
 os_name = "posix"
-ffmpegFullName = None
+converter_exe_path = None
 if os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg.exe")):
-    ffmpegFullName = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg.exe")
+    converter_exe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg.exe")
     os_name = "windows"
 elif os.path.isfile("/usr/bin/ffmpeg"):
-    ffmpegFullName = "/usr/bin/ffmpeg"
+    converter_exe_path = "ffmpeg"  # no full path is needed if in bin
     os_name = "linux"
 elif os.path.isfile("ffmpeg.exe"):
-    ffmpegFullName="ffmpeg.exe"
+    converter_exe_path="ffmpeg.exe"
     os_name = "windows"
 elif os.path.isfile("ffmpeg"):
-    ffmpegFullName="ffmpeg"
+    converter_exe_path="ffmpeg"
     os_name = "linux"
 else:
-    deps_enable=False
-    try:
-        raw_input("Please place ffmpeg in the current directory in order to use this program.")
-    except:
-        input("Please place ffmpeg in the current directory in order to use this program.")
+    #deps_enable=False
+    #try:
+    #    raw_input("Please place ffmpeg in the current directory in order to use this program.")
+    #except:
+    #    input("Please place ffmpeg in the current directory in order to use this program.")
+    pass
 
+if os_name=="windows":
+    converter_package = "ffmpeg"
+else:
+    if os.path.isfile("/usr/bin/MP4Box"):
+        converter_exe_path = "MP4Box"  # no full path is needed if in bin
+    else:
+        deps_enable = False
+        try:
+            raw_input("Please install MP4Box via gpac package in order to use this program.")
+        except:
+            input("Please install MP4Box via gpac package in order to use this program.")
+        
 if not deps_enable:
     exit(1)
 
@@ -245,7 +260,7 @@ class MainForm(BoxLayout):
         global currentItem
         global introVideoFileString
         global files
-        global ffmpegFullName
+        global converter_exe_path
         if currentItem >=0 and currentItem < len(files):
             thisFile = files[currentItem]
             srcFileFullName = os.path.join(videos_path,thisFile)
@@ -278,10 +293,16 @@ class MainForm(BoxLayout):
                             listFile.write("file '" + srcMovedFileFullName+"'\n")
                             #listFile.write("stream\n")
                             listFile.close()
-                            #batchLine = ffmpegFullName+" -i \"concat:"+introVideoFileString+"|"+srcMovedFileFullName+"\" -c copy \""+destFileFullName+"\""
-                            #batchLine = ffmpegFullName+" -i \""+listFileName+"\" -c copy \""+destFileFullName+"\""
+                            #batchLine = converter_exe_path+" -i \"concat:"+introVideoFileString+"|"+srcMovedFileFullName+"\" -c copy \""+destFileFullName+"\""
+                            #batchLine = converter_exe_path+" -i \""+listFileName+"\" -c copy \""+destFileFullName+"\""
                             #batchLine = "copy /b \"" + introVideoFileString + "\" + \"" + srcMovedFileFullName + "\" \"" + destFileFullName + "\""
-                            batchLine = ffmpegFullName + " -f concat -safe 0 -auto_convert 1 -i \"" + listFileName + "\" -c copy \"" + destFileFullName + "\""
+                            #see also MP4Box -add 1.mp4 -cat 2.mp4 -cat 3.mp4 NameofNewCombinedFile.mp4
+                            #see also mencoder firstmovie.mp4 secondmovie.mp4 -ovc copy -oac copy -of lavf format=mp4 mergedclip.mp4
+                           
+                            if converter_package=="ffmpeg":
+                                batchLine = converter_exe_path + " -f concat -safe 0 -auto_convert 1 -i \"" + listFileName + "\" -c copy \"" + destFileFullName + "\""
+                            else:
+                                batchLine = converter_exe_path + " -add \"" + introVideoFileString + "\" -cat \"" + srcMovedFileFullName + "\" \""+destFileFullName+"\""
                             self.ids.videoListView.item_strings.append("(Creating...) "+destFileFullName)
                             self.set_button_usability(False)
                             os.system(batchLine)
