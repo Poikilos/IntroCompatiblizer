@@ -1,5 +1,6 @@
 deps_enable = True
 python_basename="python"  # could also be python3
+force_wmv_enable = True
 try:
     from kivy.uix.boxlayout import BoxLayout
     from kivy.app import App
@@ -99,7 +100,8 @@ if os.path.isdir(videos_path):
         os.makedirs(intros_path)
 
 converter_package = "gpac"  # MP4Box command (see below for syntax)
-
+if force_wmv_enable:
+    converter_package = "ffmpeg"
 processedFileIDString = " (with Intro)"
 os_name = "posix"
 converter_exe_path = None
@@ -116,31 +118,33 @@ elif os.path.isfile("ffmpeg"):
     converter_exe_path="ffmpeg"
     os_name = "linux"
 else:
-    #deps_enable=False
-    #try:
-    #    raw_input("Please place ffmpeg in the current directory in order to use this program.")
-    #except:
-    #    input("Please place ffmpeg in the current directory in order to use this program.")
+    if force_wmv_enable:
+    deps_enable=False
+    try:
+        raw_input("Please place ffmpeg in the current directory in order to use this program.")
+    except:
+        input("Please place ffmpeg in the current directory in order to use this program.")
     pass
 
-if os_name=="windows":
-    converter_package = "ffmpeg"
-else:
-    if os.path.isfile("/usr/bin/MP4Box"):
-        converter_exe_path = "MP4Box"  # no full path is needed if in bin
+if not force_wmv_enable:
+    if os_name=="windows":
+        converter_package = "ffmpeg"
     else:
-        deps_enable = False
-        try:
-            raw_input("Please install MP4Box via gpac package in order to use this program.")
-        except:
-            input("Please install MP4Box via gpac package in order to use this program.")
+        if os.path.isfile("/usr/bin/MP4Box"):
+            converter_exe_path = "MP4Box"  # no full path is needed if in bin
+        else:
+            deps_enable = False
+            try:
+                raw_input("Please install MP4Box via gpac package in order to use this program.")
+            except:
+                input("Please install MP4Box via gpac package in order to use this program.")
         
 if not deps_enable:
     exit(1)
 
 introVideoFileString = None
 required_dotext = ".mp4"
-if os_name=="windows":
+if force_wmv_enable or os_name=="windows":
     required_dotext = ".wmv"
 folder_path = intros_path
 intro_count = 0
