@@ -119,7 +119,7 @@ elif os.path.isfile("ffmpeg"):
     os_name = "linux"
 else:
     if force_wmv_enable:
-    deps_enable=False
+        deps_enable=False
     try:
         raw_input("Please place ffmpeg in the current directory in order to use this program.")
     except:
