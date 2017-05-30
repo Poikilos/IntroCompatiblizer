@@ -8,6 +8,17 @@ This program assists beginners with adding an intro to Movie Maker webcam WMV vi
 * Make sure file in Intro folder in your Videos folder in your profile is same resolution and frame rate as original video
 
 ## Changes
+(2017-05-29)
+* added separate Delay button
+-- deprecated done_flag in favor of done_flags and flag_index
+* Changed MP4Box command to use -cat for both video files (instead of -add <file1> -cat <file2>) so that delay works properly (not sure why didn't, but some sites suggest -cat <file1> -cat <file2> is proper syntax)
+* Go back to preferring MP4Box (revert to MP4Box, if present, when an MP4 is about to be worked on)
+-- deprecated converter_exe_path (instead, use exe_by_package[converter_package]
+* allow multiple filetypes for intro (for all types in Intro folder, matching videos will be listed)
+-- deprecated introVideoFileString, required_dotext
+* get_dotext and get_filenamenoext: use splitext
+* get_dotext should return nothing (not filename) when no dot is present
+* changed methods and many variables to underscore naming instead of camelhump
 * (2017-02-26) switched from ffmpeg to MP4Box (only when run on linux) to avoid outdated packages which have contat errors and slowness (due to distro retaining old versions of ffmpeg)
 * (2017-02-26) the blank version of the Add Intro button shoud show a message instead of crashing when no files are present
 * (2017-02-26) create folders needed, to avoid crash on move file if destination folder didn't exist
