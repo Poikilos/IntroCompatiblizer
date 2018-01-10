@@ -1,6 +1,7 @@
 deps_enable = True
 python_basename="python"  # could also be python3
-force_wmv_enable = False
+require_wmv_enable = False
+require_MP4Box_enable = False
 disallowed_intro_extensions = ["txt", "sfk", "xml"]
 allowed_intro_extensions = ["wmv", "mp4"]
 startup_errors = list()
@@ -107,7 +108,7 @@ if os.path.isdir(videos_path):
         os.makedirs(intros_path)
 
 converter_package = "gpac"  # MP4Box command (see below for syntax)
-if force_wmv_enable:
+if require_wmv_enable:
     converter_package = "ffmpeg"
 #done_flag = " (with Intro)"
 done_flags = list()
@@ -135,13 +136,13 @@ elif os.path.isfile("ffmpeg"):
     exe_by_package["ffmpeg"] = "ffmpeg"
     os_name = "posix"
 else:
-    if force_wmv_enable:
+    if require_wmv_enable:
         deps_enable=False
     startup_errors.append("If you need WMV support, please place ffmpeg")
     startup_errors.append(" in the current directory or install the ffmpeg")
     startup_errors.append(" package in order to use this program.")
 
-#if not force_wmv_enable:
+#if not require_wmv_enable:
 #if os_name == "windows":
 #    converter_package = "ffmpeg"
 #else:
@@ -152,7 +153,12 @@ elif os.path.isfile("/usr/local/bin/MP4Box"):
     exe_by_package["gpac"] = "/usr/local/bin/MP4Box"
     os_name = "posix"
 else:
-    deps_enable = False
+    if require_MP4Box_enable:
+        deps_enable = False
+        print("Refusing to continue without MP4Box at any of these locations:")
+        print("  /usr/bin/MP4Box")
+        print("  /usr/local/bin/MP4Box")
+        input("(press enter to exit)")
     startup_errors.append("If you need mp4 support, please install MP4Box")
     startup_errors.append("via gpac package.")
         
@@ -390,6 +396,9 @@ class MainForm(BoxLayout):
                             
                             if self.get_dotext(src_moved_path) == ".mp4":
                                 converter_package = "gpac"
+                                if not gpac_enable:
+                                    self.ids.videoListView.item_strings.append("ERROR: Cannot convert mp4 without gpac  ")
+                                    self.ids.videoListView.item_strings.append("(need MP4Box command in /usr/bin or /usr/local/bin)")
                                 
                             if converter_package == "ffmpeg":
                                 delay_command = ""

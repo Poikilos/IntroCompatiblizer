@@ -8,6 +8,8 @@ This program assists beginners with adding an intro to Movie Maker webcam WMV vi
 * Make sure file in Intro folder in your Videos folder in your profile is same resolution and frame rate as original video
 
 ## Changes
+(2018-01-10)
+* allow running without MP4Box but show error on trying to add MP4 files (require_MP4Box_enable, a hard coded option set to False, still exists where if True will show error and pause then exit if missing MP4Box (gpac))
 (2017-05-29)
 * added separate Delay button
 -- deprecated done_flag in favor of done_flags and flag_index
@@ -25,6 +27,7 @@ This program assists beginners with adding an intro to Movie Maker webcam WMV vi
 * (2017-02-26) detect profile path and use cross-platform pathing
 
 ## Known Issues
+* add ability to process videos (such as offset time) even if no intro is present
 * May have issues with apostraphe or other special characters in filename
 
 ## Developer Notes
