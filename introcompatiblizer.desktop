@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=IntroCompatiblizer
+Type=Application
+Comment=IntroCompatiblizer
+Categories=Accessories
+#Path=/home/owner/Projects
+Exec=python /usr/local/lib/introcompatiblizer/introcompatiblizer.py
+Terminal=false
+StartupNotify=false
+Icon=introcompatiblizer
+Path=

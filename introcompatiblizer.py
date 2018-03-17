@@ -251,6 +251,11 @@ Builder.load_string('''
             text: ''
             on_press: root.skip_video()
         Button:
+            id: saveLogButton
+            size_hint: (1, 0.1)
+            text: 'Save Log to Documents'
+            on_press: root.save_log()
+        Button:
             id: getSkippedVideosBackButton
             size_hint: (1, 0.1)
             text: ''
@@ -272,6 +277,8 @@ def any_in(needles, haystack):
 class MainForm(BoxLayout):
     #this_app = None
     add_intro_enable = True
+    gpac_enable = False
+    
     def get_dotext(self, filename):
         #last_dot_index = filename.rfind(".")
         #wholeStringCount = len(filename)
@@ -355,7 +362,7 @@ class MainForm(BoxLayout):
             sub_name = files[currentItem]
             src_path = os.path.join(videos_path,sub_name)
             intro_path = get_compatible_intro(src_path)
-            src_moved_path = os.path.join(finished_videos_path,sub_name)
+            src_moved_path = os.path.join(finished_videos_path, sub_name)
             new_index = 1
             #make sure file does not already exist (avoid overwriting!):
             while (os.path.isfile(src_moved_path)):
@@ -396,7 +403,7 @@ class MainForm(BoxLayout):
                             
                             if self.get_dotext(src_moved_path) == ".mp4":
                                 converter_package = "gpac"
-                                if not gpac_enable:
+                                if not self.gpac_enable:
                                     self.ids.videoListView.item_strings.append("ERROR: Cannot convert mp4 without gpac  ")
                                     self.ids.videoListView.item_strings.append("(need MP4Box command in /usr/bin or /usr/local/bin)")
                                 
@@ -490,6 +497,14 @@ class MainForm(BoxLayout):
         #self.ids.skipVideoButton.update_canvas()
         #self.update_canvas()
         #time.sleep(.2)  # allow window to refresh (?)
+        
+    def save_log(self):
+        logs_path = os.path.join(profile_path, "Documents")
+        log_path = os.path.join(logs_path, "IntroCompatiblizer-output.log")
+        outs = open(log_path, 'w')
+        for s in self.ids.videoListView.item_strings:
+            outs.write(s + "\n")
+        outs.close()
 
     def skip_video(self):
         global finished_videos_path
@@ -521,6 +536,10 @@ class IntroCompatiblizerApp(App):
     def build(self):
         mainform = MainForm()
         #mainform.this_app = self
+        if os.path.isfile("/usr/local/bin/MP4Box"):
+            mainform.gpac_enable = True
+        elif os.path.isfile("/usr/bin/MP4Box"):
+            mainform.gpac_enable = True
         return mainform
 
 if __name__ == '__main__':

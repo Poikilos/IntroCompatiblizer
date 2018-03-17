@@ -1,0 +1,34 @@
+#!/bin/sh
+project_unix_name=introcompatiblizer
+prefix=/usr/local
+lib_root=$prefix/lib
+icons_root=$prefix/share/pixmaps
+
+applications_path=$prefix/share/applications
+
+this_data_file_name=introcompatiblizer.py
+icon_name=introcompatiblizer.png
+my_lib=$lib_root/$project_unix_name
+
+if [ ! -d "$icons_root" ]; then
+  sudo mkdir -p "$icons_root"
+fi
+sudo cp $icon_name "$icons_root/"
+if [ ! -d "$my_lib" ]; then
+  sudo mkdir -p "$my_lib"
+fi
+sudo cp $this_data_file_name "$my_lib/"
+
+if [ ! -d "$applications_path" ]; then
+  sudo mkdir -p "$applications_path"
+fi
+
+sudo cp $project_unix_name.desktop "$applications_path/"
+
+this_bin_path="$my_lib/$this_data_file_name"
+if [ -f "$this_bin_path" ]; then
+  echo "Sucessfully installed $this_bin_path"
+else
+  echo "FAILED to create $this_bin_path"
+  exit 1
+fi

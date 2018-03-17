@@ -21,10 +21,11 @@ This program assists beginners with adding an intro to Movie Maker webcam WMV vi
 * get_dotext and get_filenamenoext: use splitext
 * get_dotext should return nothing (not filename) when no dot is present
 * changed methods and many variables to underscore naming instead of camelhump
-* (2017-02-26) switched from ffmpeg to MP4Box (only when run on linux) to avoid outdated packages which have contat errors and slowness (due to distro retaining old versions of ffmpeg)
-* (2017-02-26) the blank version of the Add Intro button shoud show a message instead of crashing when no files are present
-* (2017-02-26) create folders needed, to avoid crash on move file if destination folder didn't exist
-* (2017-02-26) detect profile path and use cross-platform pathing
+(2017-02-26)
+* detect profile path and use cross-platform pathing
+* create folders needed, to avoid crash on move file if destination folder didn't exist
+* the blank version of the Add Intro button shoud show a message instead of crashing when no files are present
+* switched from ffmpeg to MP4Box (only when run on linux) to avoid outdated packages which have contat errors and slowness (due to distro retaining old versions of ffmpeg)
 
 ## Known Issues
 * add ability to process videos (such as offset time) even if no intro is present
@@ -32,8 +33,7 @@ This program assists beginners with adding an intro to Movie Maker webcam WMV vi
 
 ## Developer Notes
 * ffmpeg contact only works using a listfile (other methods failed, which is reason wmvappend was used by this program for a while).
-MP4Box is used since ffmpeg concat is still rather slow and has bad timestamp errors. These problems are due to old packages (distro's fault) according to http://video.stackexchange.com/questions/15468/non-monotonous-dts-on-concat-ffmpeg
-
+  MP4Box is used since ffmpeg concat is still rather slow and has bad timestamp errors. These problems are due to old packages (distro's fault) according to http://video.stackexchange.com/questions/15468/non-monotonous-dts-on-concat-ffmpeg
 * tried converting wmv to mp4 with below info, but vlc says video is 640x482 (but "display" resolution 640x480), and flowblade says framerate is 125 fps:
 
 cd $HOME/Videos/without-intro
