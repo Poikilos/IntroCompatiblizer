@@ -1,10 +1,11 @@
 [Desktop Entry]
-Name=IntroCompatiblizer
+Name=IntroCompatiblizer (Kivy edition)
 Type=Application
 Comment=IntroCompatiblizer
 Categories=Accessories
 #Path=/home/owner/Projects
-Exec=python /usr/local/lib/introcompatiblizer/introcompatiblizer.py
+#Exec=python /usr/local/lib/introcompatiblizer/introcompatiblizer.py
+Exec=/home/owner/kivy_venv/bin/python /home/owner/git/IntroCompatiblizer-kivy/introcompatiblizer.py
 Terminal=false
 StartupNotify=false
 Icon=introcompatiblizer

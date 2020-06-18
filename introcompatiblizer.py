@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 deps_enable = True
 python_basename="python"  # could also be python3
 require_wmv_enable = False
@@ -5,6 +6,19 @@ require_MP4Box_enable = False
 disallowed_intro_extensions = ["txt", "sfk", "xml"]
 allowed_intro_extensions = ["wmv", "mp4"]
 startup_errors = list()
+setupNote = """
+#sudo dnf install python-virtualenv
+python -m pip install --upgrade --user pip setuptools virtualenv
+python -m virtualenv ~/kivy_venv
+source ~/kivy_venv/bin/activate
+python -m pip install cython
+python -m pip install kivy
+#python -m pip install kivy_examples
+##"Gstreamer is not included, so if you would like to use media playback
+##with kivy, you should install ffpyplayer like so"
+#python -m pip install ffpyplayer
+#-<https://kivy.org/doc/stable/installation/installation-linux.html>
+"""
 try:
     input = raw_input
 except NameError:
@@ -24,6 +38,9 @@ except:
     print("Go to http://expertmultimedia.com/usingpython")
     print(" then click 'Install Kivy for Python 3'")
     print("")
+    print("Otherwise:")
+    print(setupNote)
+    exit(1)
     print("If you are on a debian-based distro:")
     #print("sudo add-apt-repository ppa:kivy-team/kivy")
     #print("sudo apt-get update")
@@ -31,17 +48,17 @@ except:
     #print("sudo apt-get install python-setuptools python-pygame python-opengl python-gst0.10 python-enchant gstreamer0.10-plugins-good python-dev build-essential libgl1-mesa-dev-lts-quantal libgles2-mesa-dev-lts-quantal python-pip")
     
     #The next commented print command is a modified one-line python3 version of instruction at https://kivy.org/docs/installation/installation.html under "Development Version"
-#    print("sudo apt-get install python3-setuptools python3-pygame python3-opengl python3-gst-1.0 python3-enchant gstreamer0.10-plugins-good python3-dev build-essential libgl1-mesa-dev libgles2-mesa-dev python3-pip")
-#  but python3-pygame doesn't exist so follow http://askubuntu.com/questions/401342/how-to-download-pygame-in-python3-3 :
-#sudo apt-get install mercurial
-#hg clone https://bitbucket.org/pygame/pygame
-#cd pygame
-#sudo apt-get install python3-dev python3-setuptools python3-numpy libsdl-dev libsdl-image1.2-dev \
-#  libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsmpeg-dev libportmidi-dev \
-#  libavformat-dev libswscale-dev libjpeg-dev libfreetype6-dev
-#python3 config.py
-#python3 setup.py build
-#sudo python3 setup.py install
+    #    print("sudo apt-get install python3-setuptools python3-pygame python3-opengl python3-gst-1.0 python3-enchant gstreamer0.10-plugins-good python3-dev build-essential libgl1-mesa-dev libgles2-mesa-dev python3-pip")
+    #  but python3-pygame doesn't exist so follow http://askubuntu.com/questions/401342/how-to-download-pygame-in-python3-3 :
+    #sudo apt-get install mercurial
+    #hg clone https://bitbucket.org/pygame/pygame
+    #cd pygame
+    #sudo apt-get install python3-dev python3-setuptools python3-numpy libsdl-dev libsdl-image1.2-dev \
+    #  libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsmpeg-dev libportmidi-dev \
+    #  libavformat-dev libswscale-dev libjpeg-dev libfreetype6-dev
+    #python3 config.py
+    #python3 setup.py build
+    #sudo python3 setup.py install
 
     print("sudo apt-get install python-setuptools python-pygame python-opengl python-gst0.10 python-enchant gstreamer0.10-plugins-good python-dev build-essential libgl1-mesa-dev-lts-quantal libgles2-mesa-dev-lts-quantal python-pip")
     print("sudo apt-get install python-pip") # python3-pip")
@@ -56,8 +73,8 @@ except:
     print("sudo dnf install python-devel ffmpeg-libs SDL2-devel SDL2_image-devel SDL2_mixer-devel SDL2_ttf-devel portmidi-devel libavdevice libavc1394-devel zlibrary-devel ccache mesa-libGL mesa-libGL-devel")
     #Next line resolves: gcc: error: /usr/lib/rpm/redhat/redhat-hardened-cc1: No such file or directory
     print("sudo dnf install redhat-rpm-config")
-#http://download.opensuse.org/repositories/home:/thopiekar:/kivy/
-#doesn't contain anything for Fedora (even old fedora version folders linked from  )
+    #http://download.opensuse.org/repositories/home:/thopiekar:/kivy/
+    #doesn't contain anything for Fedora (even old fedora version folders linked from  )
     #print("sudo python3 -m pip install --upgrade pip")
     #print("sudo python3 -m pip install cython")
     #print("sudo python3 -m pip install --upgrade pip wheel setuptools")
