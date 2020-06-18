@@ -1,3 +1,0 @@
-ffconcat version 1.0
-file '/home/owner/Videos/Intro/Intro - SeanMauer Video Intro 2014-06-10c (640x480p30).mp4'
-file '/home/owner/Videos/without-intro/2017-05-14 15-48-18.mp4'
