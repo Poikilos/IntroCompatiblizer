@@ -5,11 +5,24 @@ The format is based on [Keep a
 Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [git] - 2020-06-18
+### Changed
+- Stop using ListView since it is not in Kivy 2.0rc3-git.
+- Begin conforming to PEP8.
+- Move the example `ffmpeg concat` list to the readme.
+
+### Added
+- Add alternative methods of displaying output (using labels in a
+  `BoxLayout` instead of items in a `ListView`): `pushS`, `changeLastS`.
+- Add install instructions to readme that work on Fedora 32.
+
+
 ## [git] - 2018-01-10
 - Allow running without MP4Box but show error on trying to add MP4 files
   (`require_MP4Box_enable`, a hard coded option set to False, still
   exists--If True, it will show an error, pause, then exit if
   MP4Box (gpac) is missing).
+
 
 ## [git] - 2017-05-29
 ### Added
@@ -17,6 +30,7 @@ Changelog](https://keepachangelog.com/en/1.0.0/).
 - Allow multiple filetypes for intro (For all types in Intro folder,
   the matching videos will be listed).
   - Deprecate `introVideoFileString` and `required_dotext`.
+
 ### Changed
 - Deprecate `done_flag` in favor of `done_flags` and `flag_index`.
 - Change MP4Box command to use `-cat` for both video files (instead of
@@ -32,6 +46,7 @@ Changelog](https://keepachangelog.com/en/1.0.0/).
   present.
 - Change methods and many variables to underscore naming instead of
   camelhump.
+
 
 ## [git] - 2017-02-26
 ### Changed

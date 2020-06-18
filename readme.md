@@ -5,6 +5,21 @@ webcam WMV videos on Windows, and to mp4 videos on GNU+Linux systems.
 ## System Requirements
 - Windows: ffmpeg.exe in same directory (formerly wmvappend.exe)
 - Linux: gpac (MP4Box)
+- A Kivy virtual environment (on Windows, replace `~` with
+  `%USERPROFILE%` and ignore lines starting with `#`):
+```
+python -m pip install --upgrade --user pip virtualenv setuptools
+python -m virtualenv ~/kivy_venv
+source ~/kivy_venv/bin/activate
+# pip install Cython==0.29.9
+# ^ FAILS (0.29.10 which worked before also fails)
+# pip install --no-binary kivy
+# ^ FAILS: "ERROR: You must give at least one requirement
+#   to install (see "pip help install")"
+pip install Cython
+pip install git+https://github.com/kivy/kivy.git@master
+# ^ installs v2.0.0rc3, git-855c963 as of Fedora 32 (2020-06-18)
+```
 
 ## How to Use
 - You can run the program using the icon "Intro Combatiblizer"
@@ -28,6 +43,12 @@ webcam WMV videos on Windows, and to mp4 videos on GNU+Linux systems.
     timestamp errors. These problems are due to old packages (distro's
     fault) according to
     <http://video.stackexchange.com/questions/15468/non-monotonous-dts-on-concat-ffmpeg>
+  - example lastList.txt file:
+```
+ffconcat version 1.0
+file '/home/owner/Videos/Intro/Intro - SeanMauer Video Intro 2014-06-10c (640x480p30).mp4'
+file '/home/owner/Videos/without-intro/2017-05-14 15-48-18.mp4'
+```
 - I tried converting wmv to mp4 with below info, but vlc says that the
   video is 640x482 (but "display" resolution 640x480), and flowblade
   says that the framerate is 125 fps:

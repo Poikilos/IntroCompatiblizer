@@ -3,8 +3,8 @@ deps_enable = True
 python_basename="python"  # could also be python3
 require_wmv_enable = False
 require_MP4Box_enable = False
-disallowed_intro_extensions = ["txt", "sfk", "xml"]
-allowed_intro_extensions = ["wmv", "mp4"]
+badIntroExts = ["txt", "sfk", "xml"]
+okIntroExts = ["wmv", "mp4"]
 startup_errors = list()
 setupNote = """
 #sudo dnf install python-virtualenv
@@ -24,15 +24,26 @@ try:
 except NameError:
     pass
 
+def view_traceback():
+    ex_type, ex, tb = sys.exc_info()
+    print(min_indent+str(ex_type))
+    print(min_indent+str(ex))
+    traceback.print_tb(tb)
+    del tb
+
+
 try:
     from kivy.uix.boxlayout import BoxLayout
+    from kivy.uix.label import Label
     from kivy.app import App
     from kivy.lang import Builder
     #from kivy.clock import Clock
-except:
+except ImportError:
     deps_enable = False
     
-    print("Kivy is missing from your system. Try the following commands in terminal:")
+    view_traceback()
+    print("If Kivy is missing from your system,")
+    print("try the following commands in terminal:")
     print("")
     print("If you are on Windows:")
     print("Go to http://expertmultimedia.com/usingpython")
@@ -42,23 +53,37 @@ except:
     print(setupNote)
     exit(1)
     print("If you are on a debian-based distro:")
-    #print("sudo add-apt-repository ppa:kivy-team/kivy")
-    #print("sudo apt-get update")
+    # print("sudo add-apt-repository ppa:kivy-team/kivy")
+    # print("sudo apt-get update")
     print("sudo apt-get remove python-kivy python3-kivy")
-    #print("sudo apt-get install python-setuptools python-pygame python-opengl python-gst0.10 python-enchant gstreamer0.10-plugins-good python-dev build-essential libgl1-mesa-dev-lts-quantal libgles2-mesa-dev-lts-quantal python-pip")
+    # print("sudo apt-get install python-setuptools python-pygame"
+    #       " python-opengl python-gst0.10 python-enchant"
+    #       " gstreamer0.10-plugins-good python-dev build-essential"
+    #       " libgl1-mesa-dev-lts-quantal libgles2-mesa-dev-lts-quantal"
+    #       " python-pip")
     
-    #The next commented print command is a modified one-line python3 version of instruction at https://kivy.org/docs/installation/installation.html under "Development Version"
-    #    print("sudo apt-get install python3-setuptools python3-pygame python3-opengl python3-gst-1.0 python3-enchant gstreamer0.10-plugins-good python3-dev build-essential libgl1-mesa-dev libgles2-mesa-dev python3-pip")
-    #  but python3-pygame doesn't exist so follow http://askubuntu.com/questions/401342/how-to-download-pygame-in-python3-3 :
-    #sudo apt-get install mercurial
-    #hg clone https://bitbucket.org/pygame/pygame
-    #cd pygame
-    #sudo apt-get install python3-dev python3-setuptools python3-numpy libsdl-dev libsdl-image1.2-dev \
-    #  libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsmpeg-dev libportmidi-dev \
+    # The next commented print command is a modified one-line python3
+    # version of instruction at
+    # <https://kivy.org/docs/installation/installation.html> under
+    # "Development Version"
+    # print("sudo apt-get install python3-setuptools python3-pygame"
+    #       " python3-opengl python3-gst-1.0 python3-enchant"
+    #       " gstreamer0.10-plugins-good python3-dev build-essential"
+    #       " libgl1-mesa-dev libgles2-mesa-dev python3-pip")
+    # # but python3-pygame doesn't exist so follow
+    # # <http://askubuntu.com/questions/401342/
+    # # how-to-download-pygame-in-python3-3>:
+    # sudo apt-get install mercurial
+    # hg clone https://bitbucket.org/pygame/pygame
+    # cd pygame
+    # sudo apt-get install python3-dev python3-setuptools \
+    #  python3-numpy libsdl-dev libsdl-image1.2-dev \
+    #  libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsmpeg-dev \
+    #  libportmidi-dev \
     #  libavformat-dev libswscale-dev libjpeg-dev libfreetype6-dev
-    #python3 config.py
-    #python3 setup.py build
-    #sudo python3 setup.py install
+    # python3 config.py
+    # python3 setup.py build
+    # sudo python3 setup.py install
 
     print("sudo apt-get install python-setuptools python-pygame python-opengl python-gst0.10 python-enchant gstreamer0.10-plugins-good python-dev build-essential libgl1-mesa-dev-lts-quantal libgles2-mesa-dev-lts-quantal python-pip")
     print("sudo apt-get install python-pip") # python3-pip")
@@ -216,11 +241,13 @@ folder_path = intros_path
 if os.path.isdir(folder_path):
     for sub_name in os.listdir(folder_path):
         sub_path = os.path.join(folder_path, sub_name)
-        if sub_name[:1]!="." and os.path.isfile(sub_path):
-            basename = os.path.splitext(sub_name)[0]
-            if "intro" in sub_name.lower() \
-               and os.path.splitext(sub_path)[1].lower() not in disallowed_intro_extensions:
-                intro_paths.append(sub_path)
+        if sub_name[:1] == "." or not os.path.isfile(sub_path):
+            continue
+        basename = os.path.splitext(sub_name)[0]
+        if "intro" not in sub_name.lower():
+            continue
+        if os.path.splitext(sub_path)[1].lower() not in badIntroExts:
+            intro_paths.append(sub_path)
 files = list()
 currentItem = -1
 
@@ -279,7 +306,8 @@ Builder.load_string('''
             opacity: 0.0
             on_press: root.recall_skipped_videos()
 
-        ListView:
+        BoxLayout:
+            orientation: 'vertical'
             id: videoListView
 ''')
 
@@ -292,9 +320,10 @@ def any_in(needles, haystack):
     return result
 
 class MainForm(BoxLayout):
-    #this_app = None
+    # this_app = None
     add_intro_enable = True
     gpac_enable = False
+    lastLabel = None
     
     def get_dotext(self, filename):
         #last_dot_index = filename.rfind(".")
@@ -312,22 +341,43 @@ class MainForm(BoxLayout):
 
     def get_filenamenoext(self, filename):
         return os.path.splitext(filename)[0]
+    
+    def pushS(self, msg):
+        thisLabel = Label(text=msg)
+        self.ids.videoListView.add_widget(thisLabel)
+        self.lastLabel = thisLabel
+        # formerly self.ids.videoListView.item_strings.append(msg)
+        # back when ListView was in Kivy (it is missing from 2.0rc3-git)
+    
+    def changeLastS(self, msg):
+        # formerly:
+        # item_count = len(self.ids.videoListView.item_strings)
+        # self.ids.videoListView.item_strings[item_count-1] = msg
+
+        if self.lastLabel is not None:
+            self.lastLabel.text = msg
 
     def detect_videos(self):
+        """
+        Detect the videos that are available to process in the
+        videos_path. This occurs when clicking the "Refresh" button and
+        possibly after certain operations.
+        """
         global files
         global videos_path
         global currentItem
         global startup_errors
         for msg in startup_errors:
-            self.ids.videoListView.item_strings.append(msg)
+            self.pushS(msg)
         startup_errors[:] = []
         if os.path.isdir(intros_path):
             if len(intro_paths) > 0:
                 subs = os.listdir(videos_path)
-                #while len(files) > 0 : files.pop()
+                # while len(files) > 0 : files.pop()
                 del files[:]
-                #del files[:] is same as files[:] = [] --neither change the reference
-                #files[:] = []
+                # del files[:] # is same as files[:] = []
+                # ^ (as desired, neither change the list reference)
+                # files[:] = []
                 unfinished_count = 0
                 for sub_name in subs:
                     sub_path = os.path.join(videos_path,sub_name)
@@ -337,24 +387,37 @@ class MainForm(BoxLayout):
                             #(if there is a compatible intro)
                             if not any_in(done_flags, sub_name):
                                 files.append(sub_name)
-                                #self.ids.videoListView.item_strings.append(sub_path)
+                                #self.pushS(sub_path)
                                 unfinished_count += 1
                 if unfinished_count < 1:
-                    self.ids.statusLabel.text = "No unfinished videos found in "+videos_path
+                    self.ids.statusLabel.text = (
+                        "No unfinished videos found in "+videos_path
+                    )
                     self.ids.addIntroButton.text = ""
                     self.ids.addDelayButton.text = ""
                     self.ids.skipVideoButton.text = ""
                     currentItem = -1
                 else:
                     currentItem = 0
-                    self.ids.statusLabel.text = str(unfinished_count) + " video(s) Found. Opened:\n" + files[currentItem]
+                    self.ids.statusLabel.text = (
+                        str(unfinished_count)
+                        + " video(s) Found. Opened:\n"
+                        + files[currentItem]
+                    )
                     self.ids.addIntroButton.text = "Add Intro"
                     self.ids.addDelayButton.text = "Add Delay"
                     self.ids.skipVideoButton.text = "Skip This File"
             else:
-                self.ids.statusLabel.text = "Error: " + intros_path + " must contain intro video files (" + str(disallowed_intro_extensions) + " are ignored)"
+                self.ids.statusLabel.text = (
+                    "Error: " + intros_path + " must contain intro"
+                    " video files (" + str(badIntroExts)
+                    + " are ignored)"
+                )
         else:
-            self.ids.statusLabel.text = "Error: " + intros_path + " is missing--place intro videos there."
+            self.ids.statusLabel.text = (
+                "Error: " + intros_path + " is missing--place intro"
+                " videos there."
+            )
     
     def add_delay(self):
         self.add_intro_enable = False
@@ -379,27 +442,37 @@ class MainForm(BoxLayout):
             sub_name = files[currentItem]
             src_path = os.path.join(videos_path,sub_name)
             intro_path = get_compatible_intro(src_path)
-            src_moved_path = os.path.join(finished_videos_path, sub_name)
+            src_moved_path = os.path.join(finished_videos_path,
+                                          sub_name)
             new_index = 1
-            #make sure file does not already exist (avoid overwriting!):
+            # make sure file does not already exist (avoid overwriting):
             while (os.path.isfile(src_moved_path)):
                 new_index += 1
-                #starts at 2 intentionally:
-                next_name = self.get_filenamenoext(sub_name) + " (" + str(new_index) + ")" + self.get_dotext(sub_name)
-                src_moved_path = os.path.join(finished_videos_path, next_name)
-            dst_path = os.path.join(videos_path, self.get_filenamenoext(sub_name) + done_flags[flag_index] + self.get_dotext(sub_name))
+                # Start at 2 intentionally:
+                next_name = (self.get_filenamenoext(sub_name) + " ("
+                             + str(new_index) + ")"
+                             + self.get_dotext(sub_name))
+                src_moved_path = os.path.join(finished_videos_path,
+                                              next_name)
+            dst_path = os.path.join(
+                videos_path,
+                (self.get_filenamenoext(sub_name)
+                 + done_flags[flag_index]
+                 + self.get_dotext(sub_name))
+            )
             try:
                 if currentItem >= 0:
-                    bad_character_index = videos_path.find("'")
-                    if bad_character_index < 0:
-                        bad_character_index = finished_videos_path.find("'")
-                        if bad_character_index < 0:
-                            src_moved_path = src_moved_path.replace("'", "")
+                    badCharI = videos_path.find("'")
+                    if badCharI < 0:
+                        badCharI = finished_videos_path.find("'")
+                        if badCharI < 0:
+                            src_moved_path = src_moved_path.replace("'",
+                                                                    "")
                             dst_path = dst_path.replace("'", "")
                             if src_path != src_moved_path:
                                 os.rename(src_path, src_moved_path)
-                            #GOAL: combine intro_path with src_moved_path
-                            # and save result as dst_path
+                            # GOAL: combine intro_path with
+                            # src_moved_path and save result as dst_path
                             # ffmpeg -i concat:"intro_path|src_moved_path" "dst_path"
                             listfile_name = "IntroCompatiblizer-last_list.txt"
                             listfile_path = os.path.join(profile_path, listfile_name)
@@ -407,22 +480,22 @@ class MainForm(BoxLayout):
                             listFile.write("ffconcat version 1.0\n")
                             if self.add_intro_enable:
                                 listFile.write("file '" + intro_path + "'\n")
-                            #listFile.write("stream\n")
+                            # listFile.write("stream\n")
                             listFile.write("file '" + src_moved_path + "'\n")
-                            #listFile.write("stream\n")
+                            # listFile.write("stream\n")
                             listFile.close()
-                            #batchLine = exe_by_package[converter_package]+" -i \"concat:"+intro_path+"|"+src_moved_path+"\" -c copy \""+dst_path+"\""
-                            #batchLine = exe_by_package[converter_package]+" -i \""+listfile_path+"\" -c copy \""+dst_path+"\""
-                            #batchLine = "copy /b \"" + intro_path + "\" + \"" + src_moved_path + "\" \"" + dst_path + "\""
-                            #see also MP4Box -add 1.mp4 -cat 2.mp4 -cat 3.mp4 NameofNewCombinedFile.mp4
-                            #see also mencoder firstmovie.mp4 secondmovie.mp4 -ovc copy -oac copy -of lavf format=mp4 mergedclip.mp4
+                            # batchLine = exe_by_package[converter_package]+" -i \"concat:"+intro_path+"|"+src_moved_path+"\" -c copy \""+dst_path+"\""
+                            # batchLine = exe_by_package[converter_package]+" -i \""+listfile_path+"\" -c copy \""+dst_path+"\""
+                            # batchLine = "copy /b \"" + intro_path + "\" + \"" + src_moved_path + "\" \"" + dst_path + "\""
+                            # see also MP4Box -add 1.mp4 -cat 2.mp4 -cat 3.mp4 NameofNewCombinedFile.mp4
+                            # see also mencoder firstmovie.mp4 secondmovie.mp4 -ovc copy -oac copy -of lavf format=mp4 mergedclip.mp4
                             prev_converter_package = converter_package
                             
                             if self.get_dotext(src_moved_path) == ".mp4":
                                 converter_package = "gpac"
                                 if not self.gpac_enable:
-                                    self.ids.videoListView.item_strings.append("ERROR: Cannot convert mp4 without gpac  ")
-                                    self.ids.videoListView.item_strings.append("(need MP4Box command in /usr/bin or /usr/local/bin)")
+                                    self.pushS("ERROR: Cannot convert mp4 without gpac  ")
+                                    self.pushS("(need MP4Box command in /usr/bin or /usr/local/bin)")
                                 
                             if converter_package == "ffmpeg":
                                 delay_command = ""
@@ -453,35 +526,51 @@ class MainForm(BoxLayout):
                             outs = open(last_cmd_path, 'w')
                             outs.write(batchLine + "\n")
                             outs.close()
-                            self.ids.videoListView.item_strings.append("(Creating...) "+dst_path)
+                            self.pushS("(Creating...) "+dst_path)
                             self.set_button_usability(False)
                             self.ids.statusLabel.text = "Please wait..."
                             self.ids.mainBoxLayout.do_layout()  # force refresh
                             try:
                                 os.system(batchLine)
                                 self.set_button_usability(True)
-                                item_count = len(self.ids.videoListView.item_strings)
-                                self.ids.videoListView.item_strings[item_count-1]="Done "+dst_path
-                                #self.ids.videoListView.item_strings.append("Creating "+dst_path+"...OK")
+                                self.changeLastS("Done "+dst_path)
+                                # self.pushS("Creating " + dst_path
+                                #            + "...OK")
                             except:
-                                self.ids.statusLabel.text = "Could not finish.\n" + str(sys.exc_info())
+                                self.ids.statusLabel.text = (
+                                    "Could not finish.\n"
+                                    + str(sys.exc_info())
+                                )
                         else:
-                            self.ids.videoListView.item_strings.append("Cannot have single quote in finished videos path.")
-                            self.ids.videoListView.item_strings.append("(Nothing was done)")
+                            self.pushS("Cannot have single quote in"
+                                       " finished videos path.")
+                            self.pushS("(Nothing was done)")
 
                     else:
-                        self.ids.videoListView.item_strings.append("Cannot have single quote in videos path.")
-                        self.ids.videoListView.item_strings.append("(Nothing was done)")
+                        self.pushS("Cannot have single quote in"
+                                   " videos path.")
+                        self.pushS("(Nothing was done)")
                     self.detect_videos()
                 else:
-                    #self.ids.videoListView.item_strings.append("Nothing to do (push refresh or move file back from "+finished_videos_path+" to "+videos_path+").")
-                    self.ids.statusLabel.text="Nothing to do (push refresh or move file back from "+finished_videos_path+" to "+videos_path+")."
+                    # self.pushS("Nothing to do (push refresh or move"
+                    #            " file back from "
+                    #            + finished_videos_path + " to "
+                    #            + videos_path + ").")
+                    self.ids.statusLabel.text = (
+                        "Nothing to do (push refresh or move file back"
+                        " from " + finished_videos_path + " to "
+                        + videos_path + ")."
+                    )
             except:
-                #traceback.print_exc()
-                #print(traceback.format_exc(), file=sys.stderr, flush=True)
-                self.ids.videoListView.item_strings.append(traceback.format_exc())
+                # traceback.print_exc()
+                # print(traceback.format_exc(), file=sys.stderr,
+                #       flush=True)
+                self.pushS(traceback.format_exc())
         else:
-            self.ids.statusLabel.text="Nothing to do (push refresh or move file back from "+finished_videos_path+" to "+videos_path+")."
+            self.ids.statusLabel.text = (
+                "Nothing to do (push refresh or move file back from "
+                + finished_videos_path + " to " + videos_path + ")."
+            )
 
     def set_button_usability(self, usable_enable):
         this_opacity = 1.0
@@ -489,38 +578,39 @@ class MainForm(BoxLayout):
             this_opacity=  .5
         self.ids.detectVideosButton.opacity = this_opacity
         self.ids.detectVideosButton.disabled = not usable_enable
-        #self.ids.detectVideosButton.canvas.ask_update()
+        # self.ids.detectVideosButton.canvas.ask_update()
         self.ids.addIntroButton.opacity = this_opacity
         self.ids.addIntroButton.disabled = not usable_enable
-        #self.ids.addIntroButton.canvas.ask_update()
+        # self.ids.addIntroButton.canvas.ask_update()
         self.ids.addDelayButton.opacity = this_opacity
         self.ids.addDelayButton.disabled = not usable_enable
-        #self.ids.addDelayButton.canvas.ask_update()
+        # self.ids.addDelayButton.canvas.ask_update()
         self.ids.skipVideoButton.opacity = this_opacity
         self.ids.skipVideoButton.disabled = not usable_enable
-        #self.this_app.update()
-        #none of this stuff below refreshes the widgets :(
-        #self.ids.skipVideoButton.canvas.ask_update()
-        #self.ids.getSkippedVideosBackButton.opacity = this_opacity
-        #self.ids.getSkippedVideosBackButton.disabled = not usable_enable
-        #self.ask_update() #no attribute exception
-        #self.ids.videoListView.ask_update() #no attribute exception
-        #self.ids.videoListView.canvas.ask_update()
-        #self.canvas.ask_update()
-        #this_layout = self.ids.mainBoxLayout
-        #self.remove_widget(self.ids.mainBoxLayout)
-        #self.add_widget(this_layout)
-        #self.ids.mainBoxLayout.do_layout()
-        #self.ids.skipVideoButton.update_canvas()
-        #self.update_canvas()
-        #time.sleep(.2)  # allow window to refresh (?)
+        # self.this_app.update()
+        # none of this stuff below refreshes the widgets :(
+        # self.ids.skipVideoButton.canvas.ask_update()
+        # self.ids.getSkippedVideosBackButton.opacity = this_opacity
+        # self.ids.getSkippedVideosBackButton.disabled = not usable_enable
+        # self.ask_update() #no attribute exception
+        # self.ids.videoListView.ask_update() #no attribute exception
+        # self.ids.videoListView.canvas.ask_update()
+        # self.canvas.ask_update()
+        # this_layout = self.ids.mainBoxLayout
+        # self.remove_widget(self.ids.mainBoxLayout)
+        # self.add_widget(this_layout)
+        # self.ids.mainBoxLayout.do_layout()
+        # self.ids.skipVideoButton.update_canvas()
+        # self.update_canvas()
+        # time.sleep(.2)  # allow window to refresh (?)
         
     def save_log(self):
         logs_path = os.path.join(profile_path, "Documents")
-        log_path = os.path.join(logs_path, "IntroCompatiblizer-output.log")
+        log_path = os.path.join(logs_path,
+                                "IntroCompatiblizer-output.log")
         outs = open(log_path, 'w')
-        for s in self.ids.videoListView.item_strings:
-            outs.write(s + "\n")
+        for widget in self.ids.videoListView.children:
+            outs.write(widget.text + "\n")
         outs.close()
 
     def skip_video(self):
@@ -531,28 +621,34 @@ class MainForm(BoxLayout):
         global files
         if currentItem>=0:
             sub_name = files[currentItem]
-            os.rename(os.path.join(videos_path,sub_name), os.path.join(skipped_videos_path,sub_name))
+            os.rename(os.path.join(videos_path,sub_name),
+                      os.path.join(skipped_videos_path,sub_name))
             self.detect_videos()
         else:
-            #self.ids.videoListView.item_strings.append("Nothing to do (push refresh or move file back from "+finished_videos_path+" to "+videos_path+").")
-            self.ids.statusLabel.text="Nothing to do (push refresh or move file back from "+finished_videos_path+" to "+videos_path+")."
+            # self.pushS("Nothing to do (push refresh or move file back"
+            #            " from " + finished_videos_path + " to "
+            #            + videos_path + ").")
+            self.ids.statusLabel.text = (
+                "Nothing to do (push refresh or move file back from "
+                + finished_videos_path + " to " + videos_path + ")."
+            )
 
     def recall_skipped_videos(self):
         pass
-        #subs = os.listdir(skipped_videos_path)
-        #unskipped_count = 0
-        #for sub_name in subs:
-        #    sub_path = os.path.join(skipped_videos_path,sub_name)
-        #    if os.path.isfile(sub_path):
-        #        if sub_path.lower().endswith(".wmv"):
-        #            unskipped_count += 1
-        #self.detect_videos()
-        #self.ids.videoListView.item_strings.append("Brought back "+str(unskipped_count)+" video(s)")
+        # subs = os.listdir(skipped_videos_path)
+        # unskipped_count = 0
+        # for sub_name in subs:
+        #     sub_path = os.path.join(skipped_videos_path,sub_name)
+        #     if os.path.isfile(sub_path):
+        #         if sub_path.lower().endswith(".wmv"):
+        #             unskipped_count += 1
+        # self.detect_videos()
+        # self.pushS("Brought back "+str(unskipped_count)+" video(s)")
 
 class IntroCompatiblizerApp(App):
     def build(self):
         mainform = MainForm()
-        #mainform.this_app = self
+        # mainform.this_app = self
         if os.path.isfile("/usr/local/bin/MP4Box"):
             mainform.gpac_enable = True
         elif os.path.isfile("/usr/bin/MP4Box"):
