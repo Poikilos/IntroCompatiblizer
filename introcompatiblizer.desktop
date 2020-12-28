@@ -2,11 +2,11 @@
 Name=IntroCompatiblizer (Kivy edition)
 Type=Application
 Comment=IntroCompatiblizer
-Categories=Accessories
+Categories=Accessories;AudioVideo;Video;
 #Path=/home/owner/Projects
 #Exec=python /usr/local/lib/introcompatiblizer/introcompatiblizer.py
-Exec=/home/owner/kivy_venv/bin/python /home/owner/git/IntroCompatiblizer-kivy/introcompatiblizer.py
+Exec=/home/owner/kivy_venv/bin/python /home/owner/git/IntroCompatiblizer-kivy/home/owner/git/IntroCompatiblizer-kivy/introcompatiblizer.py
 Terminal=false
 StartupNotify=false
 Icon=introcompatiblizer
-Path=
+Path=/home/owner/git/IntroCompatiblizer-kivy
