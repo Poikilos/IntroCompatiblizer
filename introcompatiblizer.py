@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import sys
+import traceback
+
 deps_enable = True
 python_basename="python"  # could also be python3
 require_wmv_enable = False
@@ -24,10 +27,10 @@ try:
 except NameError:
     pass
 
-def view_traceback():
+def view_traceback(indent=""):
     ex_type, ex, tb = sys.exc_info()
-    print(min_indent+str(ex_type))
-    print(min_indent+str(ex))
+    print(indent+str(ex_type))
+    print(indent+str(ex))
     traceback.print_tb(tb)
     del tb
 
