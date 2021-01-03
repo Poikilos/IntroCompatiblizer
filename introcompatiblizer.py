@@ -40,11 +40,13 @@ try:
     from kivy.uix.label import Label
     from kivy.app import App
     from kivy.lang import Builder
-    #from kivy.clock import Clock
+    # from kivy.clock import Clock
 except ImportError:
     deps_enable = False
-    
+
     view_traceback()
+    print("")
+    print("")
     print("If Kivy is missing from your system,")
     print("try the following commands in terminal:")
     print("")
@@ -64,7 +66,7 @@ except ImportError:
     #       " gstreamer0.10-plugins-good python-dev build-essential"
     #       " libgl1-mesa-dev-lts-quantal libgles2-mesa-dev-lts-quantal"
     #       " python-pip")
-    
+
     # The next commented print command is a modified one-line python3
     # version of instruction at
     # <https://kivy.org/docs/installation/installation.html> under
@@ -108,7 +110,7 @@ except ImportError:
     #print("sudo python3 -m pip install --upgrade pip wheel setuptools")
     #print("sudo python3 -m pip install docutils pygments")
     # pypiwin32 kivy.deps.sdl2 kivy.deps.glew")
-    
+
     #print("cd $HOME/Downloads")
     #print("wget https://kivy.org/downloads/appveyor/kivy/Kivy-1.9.2.dev0-cp35-cp35m-win_amd64.whl")
     #print("sudo python3 -m pip install Kivy-1.9.2.dev0-cp35-cp35m-win_amd64.whl")
@@ -172,7 +174,7 @@ elif os.path.isfile("/usr/bin/ffmpeg"):
     exe_by_package["ffmpeg"] = "ffmpeg"  # no full path is needed if in bin
     os_name = "posix"
 elif os.path.isfile("/usr/local/bin/ffmpeg"):
-    exe_by_package["ffmpeg"] = "/usr/local/bin/ffmpeg" 
+    exe_by_package["ffmpeg"] = "/usr/local/bin/ffmpeg"
     os_name = "posix"
 elif os.path.isfile("ffmpeg.exe"):
     exe_by_package["ffmpeg"] = "ffmpeg.exe"
@@ -187,10 +189,10 @@ else:
     startup_errors.append(" in the current directory or install the ffmpeg")
     startup_errors.append(" package in order to use this program.")
 
-#if not require_wmv_enable:
-#if os_name == "windows":
-#    converter_package = "ffmpeg"
-#else:
+# if not require_wmv_enable:
+# if os_name == "windows":
+# #  converter_package = "ffmpeg"
+# else:
 if os.path.isfile("/usr/bin/MP4Box"):
     exe_by_package["gpac"] = "MP4Box"  # no full path is needed if in bin
     os_name = "posix"
@@ -206,11 +208,12 @@ else:
         input("(press enter to exit)")
     startup_errors.append("If you need mp4 support, please install MP4Box")
     startup_errors.append("via gpac package.")
-        
+
 if not deps_enable:
     exit(1)
 
 intro_paths = list()
+
 
 def get_extensions(include_dot_enable=True):
     results = list()
@@ -221,6 +224,7 @@ def get_extensions(include_dot_enable=True):
             results.append(extension)
     return results
 
+
 def is_compatible(name):
     result = False
     extensions = get_extensions()
@@ -229,6 +233,7 @@ def is_compatible(name):
             result = True
             break
     return result
+
 
 def get_compatible_intro(video_path):
     result = None
@@ -239,6 +244,7 @@ def get_compatible_intro(video_path):
                 result = intro
                 break
     return result
+
 
 folder_path = intros_path
 if os.path.isdir(folder_path):
@@ -314,6 +320,7 @@ Builder.load_string('''
             id: videoListView
 ''')
 
+
 def any_in(needles, haystack):
     result = False
     for needle in needles:
@@ -322,12 +329,13 @@ def any_in(needles, haystack):
             break
     return result
 
+
 class MainForm(BoxLayout):
     # this_app = None
     add_intro_enable = True
     gpac_enable = False
     lastLabel = None
-    
+
     def get_dotext(self, filename):
         #last_dot_index = filename.rfind(".")
         #wholeStringCount = len(filename)
@@ -344,14 +352,14 @@ class MainForm(BoxLayout):
 
     def get_filenamenoext(self, filename):
         return os.path.splitext(filename)[0]
-    
+
     def pushS(self, msg):
         thisLabel = Label(text=msg)
         self.ids.videoListView.add_widget(thisLabel)
         self.lastLabel = thisLabel
         # formerly self.ids.videoListView.item_strings.append(msg)
         # back when ListView was in Kivy (it is missing from 2.0rc3-git)
-    
+
     def changeLastS(self, msg):
         # formerly:
         # item_count = len(self.ids.videoListView.item_strings)
@@ -421,7 +429,7 @@ class MainForm(BoxLayout):
                 "Error: " + intros_path + " is missing--place intro"
                 " videos there."
             )
-    
+
     def add_delay(self):
         self.add_intro_enable = False
         try:
@@ -430,7 +438,7 @@ class MainForm(BoxLayout):
             print(str(sys.exc_info()))
             pass
         self.add_intro_enable = True
-    
+
     def add_intro(self):
         global finished_videos_path
         global videos_path
@@ -493,13 +501,13 @@ class MainForm(BoxLayout):
                             # see also MP4Box -add 1.mp4 -cat 2.mp4 -cat 3.mp4 NameofNewCombinedFile.mp4
                             # see also mencoder firstmovie.mp4 secondmovie.mp4 -ovc copy -oac copy -of lavf format=mp4 mergedclip.mp4
                             prev_converter_package = converter_package
-                            
+
                             if self.get_dotext(src_moved_path) == ".mp4":
                                 converter_package = "gpac"
                                 if not self.gpac_enable:
                                     self.pushS("ERROR: Cannot convert mp4 without gpac  ")
                                     self.pushS("(need MP4Box command in /usr/bin or /usr/local/bin)")
-                                
+
                             if converter_package == "ffmpeg":
                                 delay_command = ""
                                 if len(self.ids.delayTextInput.text.strip()) > 0:
@@ -606,7 +614,7 @@ class MainForm(BoxLayout):
         # self.ids.skipVideoButton.update_canvas()
         # self.update_canvas()
         # time.sleep(.2)  # allow window to refresh (?)
-        
+
     def save_log(self):
         logs_path = os.path.join(profile_path, "Documents")
         log_path = os.path.join(logs_path,
@@ -648,6 +656,7 @@ class MainForm(BoxLayout):
         # self.detect_videos()
         # self.pushS("Brought back "+str(unskipped_count)+" video(s)")
 
+
 class IntroCompatiblizerApp(App):
     def build(self):
         mainform = MainForm()
@@ -657,6 +666,7 @@ class IntroCompatiblizerApp(App):
         elif os.path.isfile("/usr/bin/MP4Box"):
             mainform.gpac_enable = True
         return mainform
+
 
 if __name__ == '__main__':
     IntroCompatiblizerApp().run()
