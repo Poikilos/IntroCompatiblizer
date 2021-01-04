@@ -352,6 +352,7 @@ class MainForm(BoxLayout):
         return os.path.splitext(filename)[0]
 
     def pushS(self, msg):
+        # print(msg)
         thisLabel = Label(text=msg)
         self.ids.videoListView.add_widget(thisLabel)
         self.lastLabel = thisLabel
@@ -372,7 +373,6 @@ class MainForm(BoxLayout):
         videos_path. This occurs when clicking the "Refresh" button and
         possibly after certain operations.
         '''
-        print("detecting videos...")
         global files
         global videos_path
         global currentItem
@@ -532,14 +532,18 @@ class MainForm(BoxLayout):
                                     batchLine = exe_by_package[converter_package] + delay_command + " -add \"" + src_moved_path + "\" \"" + dst_path + "\""
                             if (converter_package != prev_converter_package):
                                 converter_package = prev_converter_package
-                            last_cmd_path = os.path.join(profile_path, "IntroCompatiblizer-last_command.txt")
+                            last_cmd_path = os.path.join(
+                                profile_path,
+                                "IntroCompatiblizer-last_command.txt"
+                            )
                             outs = open(last_cmd_path, 'w')
                             outs.write(batchLine + "\n")
                             outs.close()
                             self.pushS("(Creating...) "+dst_path)
                             self.set_button_usability(False)
                             self.ids.statusLabel.text = "Please wait..."
-                            self.ids.mainBoxLayout.do_layout()  # force refresh
+                            self.ids.mainBoxLayout.do_layout()
+                            # ^ force refresh
                             try:
                                 os.system(batchLine)
                                 self.set_button_usability(True)
