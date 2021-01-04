@@ -9,7 +9,7 @@ require_MP4Box_enable = False
 badIntroExts = ["txt", "sfk", "xml"]
 okIntroExts = ["wmv", "mp4"]
 startup_errors = list()
-setupNote = """
+setupNote = '''
 #sudo dnf install python-virtualenv
 python -m pip install --upgrade --user pip setuptools virtualenv
 python -m virtualenv ~/kivy_venv
@@ -21,7 +21,7 @@ python -m pip install kivy
 ##with kivy, you should install ffpyplayer like so"
 #python -m pip install ffpyplayer
 #-<https://kivy.org/doc/stable/installation/installation-linux.html>
-"""
+'''
 try:
     input = raw_input
 except NameError:
@@ -262,8 +262,6 @@ currentItem = -1
 
 Builder.load_string('''
 <MainForm>:
-    cols: 1
-
     BoxLayout:
         id: mainBoxLayout
         orientation: 'vertical'
@@ -369,11 +367,12 @@ class MainForm(BoxLayout):
             self.lastLabel.text = msg
 
     def detect_videos(self):
-        """
+        '''
         Detect the videos that are available to process in the
         videos_path. This occurs when clicking the "Refresh" button and
         possibly after certain operations.
-        """
+        '''
+        print("detecting videos...")
         global files
         global videos_path
         global currentItem
