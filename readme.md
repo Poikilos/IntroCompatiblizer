@@ -5,9 +5,16 @@ webcam WMV videos on Windows, and to mp4 videos on GNU+Linux systems.
 ## System Requirements
 - Windows: ffmpeg.exe in same directory (formerly wmvappend.exe)
 - Linux: gpac (MP4Box)
-- A Kivy virtual environment (on Windows, replace `~` with
-  `%USERPROFILE%` and ignore lines starting with `#`):
+- Kivy
+  - Using pip:
+    ```
+python -m pip install --upgrade pip
+python -m pip install --upgrade setuptools wheel
+python -m pip install --upgrade kivy
 ```
+  - OR A Kivy virtual environment (on Windows, replace `~` with
+  `%USERPROFILE%` and ignore lines starting with `#`):
+   ```
 python -m pip install --upgrade --user pip virtualenv setuptools
 python -m virtualenv ~/kivy_venv
 source ~/kivy_venv/bin/activate

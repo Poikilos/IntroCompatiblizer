@@ -56,8 +56,8 @@ except ImportError:
     view_traceback()
     print("")
     print("")
-    print("If Kivy is missing from your system,")
-    print("try the following commands in terminal:")
+    print("Kivy seems to be missing (Open readme.md in your favorite"
+          " text editor and see \"System Requirements\").")
     print("")
     print("If you are on Windows:")
     print("Go to http://expertmultimedia.com/usingpython")
@@ -70,11 +70,8 @@ except ImportError:
 if not deps_enable:
     exit(1)
 
-import traceback
 import time
 
-import sys
-import os
 #from os import path
 profile_path = None
 if 'USERPROFILE' in os.environ:  # if os_name=="windows":
@@ -251,7 +248,7 @@ Builder.load_string('''
         Button:
             id: getSkippedVideosBackButton
             size_hint: (1, 0.1)
-            text: ''
+            text: 'Recall'
             opacity: 0.0
             on_press: root.recall_skipped_videos()
 
@@ -590,16 +587,15 @@ class MainForm(BoxLayout):
             )
 
     def recall_skipped_videos(self):
-        pass
         # subs = os.listdir(skipped_videos_path)
-        # unskipped_count = 0
+        unskipped_count = 0
         # for sub_name in subs:
         #     sub_path = os.path.join(skipped_videos_path,sub_name)
         #     if os.path.isfile(sub_path):
         #         if sub_path.lower().endswith(".wmv"):
         #             unskipped_count += 1
         # self.detect_videos()
-        # self.pushS("Brought back "+str(unskipped_count)+" video(s)")
+        self.pushS("Brought back "+str(unskipped_count)+" video(s)")
 
 
 class IntroCompatiblizerApp(App):
